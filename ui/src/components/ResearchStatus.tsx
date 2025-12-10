@@ -17,35 +17,27 @@ const ResearchStatus = ({
   return (
     <div 
       ref={statusRef} 
-      className={`${glassStyle.base} rounded-2xl p-6 ${fadeInAnimation.fadeIn} ${isResetting ? 'opacity-0 transform -translate-y-4' : 'opacity-100 transform translate-y-0'} bg-white/80 backdrop-blur-sm border-gray-200 font-['DM_Sans']`}
+      className={`${glassStyle.card} ${fadeInAnimation.fadeIn} ${isResetting ? 'opacity-0 transform -translate-y-4' : 'opacity-100 transform translate-y-0'}`}
     >
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
         <div className="flex-shrink-0">
           {error ? (
-            <div className={`${glassStyle.base} p-2 rounded-full bg-[#FE363B]/10 border-[#FE363B]/20`}>
-              <XCircle className="h-5 w-5 text-[#FE363B]" />
+            <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
+              <XCircle className="h-5 w-5 text-red-600" />
             </div>
           ) : status?.step === "Complete" || isComplete ? (
-            <div className={`${glassStyle.base} p-2 rounded-full bg-[#22C55E]/10 border-[#22C55E]/20`}>
-              <CheckCircle2 className="h-5 w-5 text-[#22C55E]" />
-            </div>
-          ) : currentPhase === 'search' || currentPhase === 'enrichment' || (status?.step === "Processing" && status.message.includes("scraping")) ? (
-            <div className={`${glassStyle.base} p-2 rounded-full bg-[#468BFF]/10 border-[#468BFF]/20`}>
-              <Loader2 className="h-5 w-5 animate-spin loader-icon" style={{ stroke: loaderColor }} />
-            </div>
-          ) : currentPhase === 'briefing' ? (
-            <div className={`${glassStyle.base} p-2 rounded-full bg-[#468BFF]/10 border-[#468BFF]/20`}>
-              <Loader2 className="h-5 w-5 animate-spin loader-icon" style={{ stroke: loaderColor }} />
+            <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             </div>
           ) : (
-            <div className={`${glassStyle.base} p-2 rounded-full bg-[#468BFF]/10 border-[#468BFF]/20`}>
+            <div className="p-2.5 rounded-xl bg-gray-100 border border-gray-200">
               <Loader2 className="h-5 w-5 animate-spin loader-icon" style={{ stroke: loaderColor }} />
             </div>
           )}
         </div>
         <div className="flex-1">
-          <p className="font-medium text-gray-900/90">{status.step}</p>
-          <p className="text-sm text-gray-600 whitespace-pre-wrap">
+          <p className="font-semibold text-gray-900">{status.step}</p>
+          <p className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">
             {error || status.message}
           </p>
         </div>

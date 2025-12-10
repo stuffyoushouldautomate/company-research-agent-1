@@ -7,13 +7,13 @@ COPY ui/ ./
 RUN npm run build
 
 # Stage 2: Build Backend
-FROM python:3.11-slim AS backend-builder
+FROM python:3.9-slim AS backend-builder
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 3: Final Image
-FROM python:3.11-slim
+FROM python:3.9-slim
 WORKDIR /app
 
 # Install system dependencies
@@ -22,15 +22,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend
-COPY --from=backend-builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=backend-builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 COPY backend/ ./backend/
 COPY application.py .
 
 # Copy frontend build
 COPY --from=frontend-builder /app/ui/dist/ ./ui/dist/
 
-# Create reports directory
-RUN mkdir -p reports
+# Create reports and pdfs directories
+RUN mkdir -p reports pdfs
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1

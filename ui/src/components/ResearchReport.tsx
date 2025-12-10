@@ -41,17 +41,17 @@ const ResearchReport = ({
       className={`${glassStyle.card} ${fadeInAnimation.fadeIn} ${isResetting ? 'opacity-0 transform -translate-y-4' : 'opacity-100 transform translate-y-0'} font-['DM_Sans']`}
     >
       {isStreaming && (
-        <div className="flex items-center gap-2 mb-4 px-4 py-2 bg-[#468BFF]/10 rounded-lg border border-[#468BFF]/20">
+        <div className="flex items-center gap-2 mb-6 px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
           <Loader2 className="h-4 w-4 animate-spin" style={{ stroke: loaderColor }} />
           <span className="text-sm text-gray-600">Generating report...</span>
         </div>
       )}
-      <div className="flex justify-end gap-2 mb-4">
+      <div className="flex justify-end gap-3 mb-6">
         {output?.details?.report && (
           <>
             <button
               onClick={onCopyToClipboard}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#468BFF] text-white hover:bg-[#8FBCFA] transition-all duration-200"
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-200"
             >
               {isCopied ? (
                 <Check className="h-5 w-5" />
@@ -62,7 +62,7 @@ const ResearchReport = ({
             <button
               onClick={onGeneratePdf}
               disabled={isGeneratingPdf}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#FFB800] text-white hover:bg-[#FFA800] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGeneratingPdf ? (
                 <>
@@ -71,8 +71,8 @@ const ResearchReport = ({
                 </>
               ) : (
                 <>
-                  <Download className="h-5 w-5" />
-                  <span className="ml-2">PDF</span>
+                  <Download className="h-5 w-5 mr-2" />
+                  PDF
                 </>
               )}
             </button>
@@ -151,7 +151,7 @@ const ResearchReport = ({
                           <a 
                             key={i}
                             href={part}
-                            className="text-[#468BFF] hover:text-[#8FBCFA] underline decoration-[#468BFF] hover:decoration-[#8FBCFA] cursor-pointer transition-colors"
+                            className="text-gray-900 hover:text-gray-700 underline decoration-gray-300 hover:decoration-gray-500 cursor-pointer transition-colors"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -174,7 +174,7 @@ const ResearchReport = ({
               a: ({node, href, ...props}) => (
                 <a 
                   href={href}
-                  className="text-[#468BFF] hover:text-[#8FBCFA] underline decoration-[#468BFF] hover:decoration-[#8FBCFA] cursor-pointer transition-colors" 
+                  className="text-gray-900 hover:text-gray-700 underline decoration-gray-300 hover:decoration-gray-500 cursor-pointer transition-colors" 
                   target="_blank"
                   rel="noopener noreferrer"
                   {...props} 

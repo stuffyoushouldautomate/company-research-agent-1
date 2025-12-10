@@ -1,6 +1,9 @@
 # Environment and secrets
 .env
+.env.local
+.env.*.local
 reports/*
+pdfs/*
 
 # Python
 __pycache__/

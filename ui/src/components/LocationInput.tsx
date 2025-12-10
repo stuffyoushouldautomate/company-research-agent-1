@@ -148,30 +148,30 @@ const LocationInput = ({ value, onChange, className }: LocationInputProps) => {
       style.textContent = `
         .pac-container {
           background-color: white !important;
-          border: 1px solid rgba(70, 139, 255, 0.1) !important;
-          border-radius: 0.75rem !important;
+          border: 1px solid rgba(229, 231, 235, 1) !important;
+          border-radius: 1rem !important;
           margin-top: 0.5rem !important;
-          font-family: "Noto Sans", sans-serif !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           overflow: hidden !important;
-          box-shadow: none !important;
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         }
         .pac-item {
           padding: 0.875rem 1.25rem !important;
           cursor: pointer !important;
           transition: all 0.2s ease-in-out !important;
-          border-bottom: 1px solid rgba(70, 139, 255, 0.05) !important;
+          border-bottom: 1px solid rgba(243, 244, 246, 1) !important;
         }
         .pac-item:last-child {
           border-bottom: none !important;
         }
         .pac-item:hover {
-          background-color: rgba(70, 139, 255, 0.03) !important;
+          background-color: rgba(249, 250, 251, 1) !important;
         }
         .pac-item-selected {
-          background-color: rgba(70, 139, 255, 0.05) !important;
+          background-color: rgba(243, 244, 246, 1) !important;
         }
         .pac-item-query {
-          color: #1a365d !important;
+          color: #111827 !important;
           font-size: 0.9375rem !important;
           font-weight: 500 !important;
         }
@@ -179,7 +179,7 @@ const LocationInput = ({ value, onChange, className }: LocationInputProps) => {
           font-weight: 600 !important;
         }
         .pac-item span:not(.pac-item-query) {
-          color: #64748b !important;
+          color: #6b7280 !important;
           font-size: 0.8125rem !important;
           margin-left: 0.5rem !important;
         }
@@ -190,7 +190,7 @@ const LocationInput = ({ value, onChange, className }: LocationInputProps) => {
         /* Style for the new PlaceAutocompleteElement */
         gmp-place-autocomplete {
           width: 100% !important;
-          --gmp-place-autocomplete-font-family: "DM Sans", sans-serif !important;
+          --gmp-place-autocomplete-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `;
       document.head.appendChild(style);
@@ -225,9 +225,8 @@ const LocationInput = ({ value, onChange, className }: LocationInputProps) => {
   }, [onChange]);
 
   return (
-    <div className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-r from-gray-50/0 via-gray-100/50 to-gray-50/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
-      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 stroke-[#468BFF] transition-all duration-200 group-hover:stroke-[#8FBCFA] z-10" strokeWidth={1.5} />
+    <div className="relative">
+      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" strokeWidth={1.5} />
       <input
         ref={inputRef}
         type="text"
@@ -238,8 +237,8 @@ const LocationInput = ({ value, onChange, className }: LocationInputProps) => {
             e.preventDefault();
           }
         }}
-        className={`${className} !font-['DM_Sans']`}
-        placeholder="City, Country"
+        className={`${className} pl-12`}
+        placeholder="City, State"
       />
     </div>
   );

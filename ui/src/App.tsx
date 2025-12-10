@@ -8,13 +8,23 @@ import {
   CurationExtraction,
   ResearchBriefings
 } from './components';
+import CompanySelector from './components/CompanySelector';
 import type { ResearchOutput, ResearchStatusType } from './types';
 import { glassStyle, fadeInAnimation } from './styles';
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-function App() {
+interface Company {
+  id: string;
+  name: string;
+  url?: string;
+  hq?: string;
+  industry?: string;
+}
 
+function App() {
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isResearching, setIsResearching] = useState(false);
   const [status, setStatus] = useState<ResearchStatusType | null>(null);
   const [output, setOutput] = useState<ResearchOutput | null>(null);
@@ -48,7 +58,7 @@ function App() {
   const [isReportStreaming, setIsReportStreaming] = useState(false);
 
   // Add new state for color cycling
-  const [loaderColor, setLoaderColor] = useState("#468BFF");
+  const [loaderColor, setLoaderColor] = useState("#6366f1");
   
   // Scroll helper function
   const scrollToStatus = () => {
@@ -60,17 +70,32 @@ function App() {
     }
   };
 
+  // Load companies from localStorage on mount
+  useEffect(() => {
+    const savedCompanies = localStorage.getItem('companies');
+    if (savedCompanies) {
+      setCompanies(JSON.parse(savedCompanies));
+    }
+  }, []);
+
+  // Save companies to localStorage whenever they change
+  useEffect(() => {
+    if (companies.length > 0) {
+      localStorage.setItem('companies', JSON.stringify(companies));
+    }
+  }, [companies]);
+
   // Add useEffect for color cycling
   useEffect(() => {
     if (!isResearching) return;
     
     const colors = [
-      "#468BFF", // Blue
-      "#8FBCFA", // Light Blue
-      "#FE363B", // Red
-      "#FF9A9D", // Light Red
-      "#FDBB11", // Yellow
-      "#F6D785", // Light Yellow
+      "#6366f1", // Indigo
+      "#8b5cf6", // Purple
+      "#ec4899", // Pink
+      "#f59e0b", // Amber
+      "#10b981", // Emerald
+      "#3b82f6", // Blue
     ];
     
     let currentIndex = 0;
@@ -82,6 +107,42 @@ function App() {
     
     return () => clearInterval(interval);
   }, [isResearching]);
+
+  const handleAddCompany = (company: Omit<Company, 'id'>) => {
+    const newCompany: Company = {
+      ...company,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    };
+    setCompanies([...companies, newCompany]);
+  };
+
+  const handleRemoveCompany = (id: string) => {
+    setCompanies(companies.filter(c => c.id !== id));
+    if (selectedCompany?.id === id) {
+      setSelectedCompany(null);
+    }
+  };
+
+  const handleSelectCompany = (company: Company) => {
+    setSelectedCompany(company);
+    // Auto-fill form with selected company
+    if (formRef.current) {
+      const form = formRef.current.querySelector('form');
+      if (form) {
+        const nameInput = form.querySelector('[name="companyName"]') as HTMLInputElement;
+        const urlInput = form.querySelector('[name="companyUrl"]') as HTMLInputElement;
+        const hqInput = form.querySelector('[name="companyHq"]') as HTMLInputElement;
+        const industryInput = form.querySelector('[name="companyIndustry"]') as HTMLInputElement;
+        
+        if (nameInput) nameInput.value = company.name;
+        if (urlInput) urlInput.value = company.url || '';
+        if (hqInput) hqInput.value = company.hq || '';
+        if (industryInput) industryInput.value = company.industry || 'Construction';
+      }
+    }
+  };
+
+  const formRef = useRef<HTMLDivElement>(null);
 
   const resetResearch = () => {
     setIsResetting(true);
@@ -491,94 +552,111 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-gray-50 to-white p-8 relative">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(70,139,255,0.35)_1px,transparent_0)] bg-[length:24px_24px] bg-center"></div>
-      <div className="max-w-5xl mx-auto space-y-8 relative">
+    <div className="min-h-screen bg-gray-50 p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Component */}
         <Header glassStyle={glassStyle.card} />
 
-        {/* Form Section */}
-        <ResearchForm 
-          onSubmit={handleFormSubmit}
-          isResearching={isResearching}
-          glassStyle={glassStyle}
-          loaderColor={loaderColor}
-        />
-
-        {/* Error Message */}
-        {error && (
-          <div 
-            className={`${glassStyle.card} border-[#FE363B]/30 bg-[#FE363B]/10 ${fadeInAnimation.fadeIn} ${isResetting ? 'opacity-0 transform -translate-y-4' : 'opacity-100 transform translate-y-0'} font-['DM_Sans']`}
-          >
-            <p className="text-[#FE363B]">{error}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Company Selector */}
+          <div className="lg:col-span-1">
+            <CompanySelector
+              companies={companies}
+              selectedCompany={selectedCompany}
+              onSelectCompany={handleSelectCompany}
+              onAddCompany={handleAddCompany}
+              onRemoveCompany={handleRemoveCompany}
+            />
           </div>
-        )}
 
-        {/* Status Box */}
-        <ResearchStatus
-          status={status}
-          error={error}
-          isComplete={isComplete}
-          currentPhase={currentPhase}
-          isResetting={isResetting}
-          glassStyle={glassStyle}
-          loaderColor={loaderColor}
-          statusRef={statusRef}
-        />
+          {/* Right Column - Research Form and Results */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Form Section */}
+            <div ref={formRef}>
+              <ResearchForm 
+                onSubmit={handleFormSubmit}
+                isResearching={isResearching}
+                glassStyle={glassStyle}
+                loaderColor={loaderColor}
+              />
+            </div>
 
-        {/* Research Report - always at the top when available */}
-        {output && output.details && (
-          <ResearchReport
-            output={{
-              summary: output.summary,
-              details: {
-                report: output.details.report || ''
-              }
-            }}
-            isResetting={isResetting}
-            isStreaming={isReportStreaming}
-            glassStyle={glassStyle}
-            fadeInAnimation={fadeInAnimation}
-            loaderColor={loaderColor}
-            isGeneratingPdf={isGeneratingPdf}
-            isCopied={isCopied}
-            onCopyToClipboard={handleCopyToClipboard}
-            onGeneratePdf={handleGeneratePdf}
-          />
-        )}
+            {/* Error Message */}
+            {error && (
+              <div 
+                className={`${glassStyle.card} border-red-200 bg-red-50 ${fadeInAnimation.fadeIn} ${isResetting ? 'opacity-0 transform -translate-y-4' : 'opacity-100 transform translate-y-0'}`}
+              >
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
 
-        {/* Research Briefings - show once briefing starts and keep visible */}
-        {(currentPhase === 'briefing' || currentPhase === 'complete') && (
-          <ResearchBriefings
-            briefingStatus={briefingStatus}
-            isExpanded={isBriefingExpanded}
-            onToggleExpand={() => setIsBriefingExpanded(!isBriefingExpanded)}
-            isResetting={isResetting}
-          />
-        )}
+            {/* Status Box */}
+            <ResearchStatus
+              status={status}
+              error={error}
+              isComplete={isComplete}
+              currentPhase={currentPhase}
+              isResetting={isResetting}
+              glassStyle={glassStyle}
+              loaderColor={loaderColor}
+              statusRef={statusRef}
+            />
 
-        {/* Curation and Extraction - show once enrichment starts and keep visible */}
-        {(currentPhase === 'enrichment' || currentPhase === 'briefing' || currentPhase === 'complete') && enrichmentCounts && (
-          <CurationExtraction
-            enrichmentCounts={enrichmentCounts}
-            isExpanded={isEnrichmentExpanded}
-            onToggleExpand={() => setIsEnrichmentExpanded(!isEnrichmentExpanded)}
-            isResetting={isResetting}
-            loaderColor={loaderColor}
-          />
-        )}
+            {/* Research Report - always at the top when available */}
+            {output && output.details && (
+              <ResearchReport
+                output={{
+                  summary: output.summary,
+                  details: {
+                    report: output.details.report || ''
+                  }
+                }}
+                isResetting={isResetting}
+                isStreaming={isReportStreaming}
+                glassStyle={glassStyle}
+                fadeInAnimation={fadeInAnimation}
+                loaderColor={loaderColor}
+                isGeneratingPdf={isGeneratingPdf}
+                isCopied={isCopied}
+                onCopyToClipboard={handleCopyToClipboard}
+                onGeneratePdf={handleGeneratePdf}
+              />
+            )}
 
-        {/* Research Queries - always at the bottom when visible */}
-        {(queries.length > 0 || Object.keys(streamingQueries).length > 0) && (
-          <ResearchQueries
-            queries={queries}
-            streamingQueries={streamingQueries}
-            isExpanded={isQueriesExpanded}
-            onToggleExpand={() => setIsQueriesExpanded(!isQueriesExpanded)}
-            isResetting={isResetting}
-            glassStyle={glassStyle.card}
-          />
-        )}
+            {/* Research Briefings - show once briefing starts and keep visible */}
+            {(currentPhase === 'briefing' || currentPhase === 'complete') && (
+              <ResearchBriefings
+                briefingStatus={briefingStatus}
+                isExpanded={isBriefingExpanded}
+                onToggleExpand={() => setIsBriefingExpanded(!isBriefingExpanded)}
+                isResetting={isResetting}
+              />
+            )}
+
+            {/* Curation and Extraction - show once enrichment starts and keep visible */}
+            {(currentPhase === 'enrichment' || currentPhase === 'briefing' || currentPhase === 'complete') && enrichmentCounts && (
+              <CurationExtraction
+                enrichmentCounts={enrichmentCounts}
+                isExpanded={isEnrichmentExpanded}
+                onToggleExpand={() => setIsEnrichmentExpanded(!isEnrichmentExpanded)}
+                isResetting={isResetting}
+                loaderColor={loaderColor}
+              />
+            )}
+
+            {/* Research Queries - always at the bottom when visible */}
+            {(queries.length > 0 || Object.keys(streamingQueries).length > 0) && (
+              <ResearchQueries
+                queries={queries}
+                streamingQueries={streamingQueries}
+                isExpanded={isQueriesExpanded}
+                onToggleExpand={() => setIsQueriesExpanded(!isQueriesExpanded)}
+                isResetting={isResetting}
+                glassStyle={glassStyle.card}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
