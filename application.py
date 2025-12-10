@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.graph import Graph
@@ -159,6 +160,9 @@ async def process_research(job_id: str, data: ResearchRequest):
 
 @app.get("/")
 async def ping():
+    # Serve frontend in production, API message in development
+    if os.path.exists("ui/dist/index.html"):
+        return FileResponse("ui/dist/index.html")
     return {"message": "Alive"}
 
 @app.get("/research/pdf/{filename}")
@@ -268,6 +272,25 @@ async def generate_pdf(data: PDFGenerationRequest):
             raise HTTPException(status_code=500, detail=result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Mount static files for frontend (must be after all API routes)
+if os.path.exists("ui/dist"):
+    # Serve static assets
+    app.mount("/assets", StaticFiles(directory="ui/dist/assets"), name="assets")
+    # Serve other static files
+    @app.get("/{path:path}")
+    async def serve_frontend(path: str):
+        # Skip API routes
+        if path.startswith("research") or path.startswith("api"):
+            raise HTTPException(status_code=404, detail="Not found")
+        # Serve specific file if exists
+        file_path = os.path.join("ui/dist", path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # Default to index.html for SPA routing
+        if os.path.exists("ui/dist/index.html"):
+            return FileResponse("ui/dist/index.html")
+        raise HTTPException(status_code=404, detail="Not found")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
